@@ -5,16 +5,17 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# ====== API Key 檢查 ======
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+# ====== API Key 檢查（支援 GEMINI_API_KEY / GOOGLE_API_KEY）======
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+
 if not GEMINI_API_KEY:
     raise RuntimeError(
-        "❌ 沒有讀到 GEMINI_API_KEY 環境變數。\n"
-        "請在本機或 Render 的環境變數中設定 GEMINI_API_KEY。"
+        "❌ 沒有讀到 GEMINI_API_KEY / GOOGLE_API_KEY 環境變數。\n"
+        "請在本機或 Render 的環境變數中設定其中一個。"
     )
 
-# 讓 google-genai 自動使用 GEMINI_API_KEY
-client = genai.Client()
+# ✅ 明確把 api_key 傳給 Client，不再靠自動偵測
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # ====== 高風險關鍵字 & 紀錄結構（prototype：先放記憶體） ======
 RISK_KEYWORDS = [
