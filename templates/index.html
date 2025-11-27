@@ -7,7 +7,6 @@
 
   <style>
     :root {
-      /* 想改成偏藍就把 primary/secondary 改成藍色系即可 */
       --color-bg-gradient-start: #e5ddff;
       --color-bg-gradient-end: #d0ecff;
       --color-primary: #6c5ce7;   /* 療癒紫 */
@@ -109,6 +108,14 @@
     .subtitle {
       font-size: 0.86rem;
       color: #5c5c7a;
+    }
+
+    .user-id-bar {
+      font-size: 0.8rem;
+      color: #6c757d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .safety-note {
@@ -301,6 +308,53 @@
       color: #868e96;
       margin-top: 4px;
     }
+
+    /* 暱稱彈窗 */
+    #nickname-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #nickname-modal .modal-inner {
+      background: #ffffff;
+      padding: 20px 20px 16px;
+      border-radius: 20px;
+      width: 320px;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    #nickname-modal p {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    #nickname-input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #ced4da;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    #save-nickname {
+      margin-top: 12px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -320,6 +374,11 @@
         </div>
       </div>
 
+      <div class="user-id-bar">
+        <span id="nickname-label">暱稱：尚未設定</span>
+        <span id="anon-id-label">匿名代號：Owl#000</span>
+      </div>
+
       <div class="safety-note">
         <div class="safety-note-icon">🫶</div>
         <div>
@@ -335,11 +394,9 @@
           <div>
             <div class="bubble bot-bubble">
               嗨，我是 🦉 歐斯。<br>
-              很高興你來到這裡。<br><br>
-              如果你心裡有一點悶、很生氣、覺得被誤會，或者只是想找人聊聊，
-              都可以跟我說。我會慢慢聽，不會罵你。<br><br>
-              你可以先從一句最想說的話開始，例如：<br>
-              「今天在學校發生一件事…」或「我現在覺得有點難過」。
+              在開始之前，我想先問問你：我可以怎麼稱呼你呢？<br><br>
+              你可以幫自己取一個暱稱，例如「小樹」、「星星」或任何你喜歡的名字。<br>
+              之後我就會用這個暱稱跟你說話。
             </div>
             <div class="bubble-meta">歐斯</div>
           </div>
@@ -348,7 +405,7 @@
 
       <div class="input-area">
         <div class="input-wrapper">
-          <textarea id="user-input" placeholder="想跟歐斯說點什麼呢？"></textarea>
+          <textarea id="user-input" placeholder="先幫自己取個暱稱，然後再跟歐斯說說今天發生了什麼事吧。"></textarea>
           <div class="input-placeholder-tag">按 Enter 送出，Shift+Enter 換行</div>
         </div>
         <button id="send-btn">
@@ -401,10 +458,70 @@
     </div>
   </div>
 
+  <!-- 暱稱彈窗 -->
+  <div id="nickname-modal">
+    <div class="modal-inner">
+      <p>嗨！我是 🦉 歐斯</p>
+      <p>我可以怎麼稱呼你呢？</p>
+      <input id="nickname-input" type="text" placeholder="輸入暱稱（例如：小樹）">
+      <button id="save-nickname">開始聊天</button>
+    </div>
+  </div>
+
   <script>
     const chatBox = document.getElementById("chat-box");
     const userInput = document.getElementById("user-input");
     const sendBtn = document.getElementById("send-btn");
+    const anonIdLabel = document.getElementById("anon-id-label");
+    const nicknameLabel = document.getElementById("nickname-label");
+
+    const nicknameModal = document.getElementById("nickname-modal");
+    const nicknameInput = document.getElementById("nickname-input");
+    const saveNicknameBtn = document.getElementById("save-nickname");
+
+    // ===== 匿名代號（Owl#123） =====
+    function generateAnonId() {
+      const num = Math.floor(100 + Math.random() * 900); // 100–999
+      return `Owl#${num}`;
+    }
+
+    let anonId = localStorage.getItem("owlsense_anon_id");
+    if (!anonId) {
+      anonId = generateAnonId();
+      localStorage.setItem("owlsense_anon_id", anonId);
+    }
+    anonIdLabel.textContent = `匿名代號：${anonId}`;
+
+    // ===== 暱稱機制 =====
+    let nickname = localStorage.getItem("owlsense_nickname");
+
+    function updateNicknameLabel() {
+      if (nickname && nickname.trim() !== "") {
+        nicknameLabel.textContent = `暱稱：${nickname}`;
+      } else {
+        nicknameLabel.textContent = "暱稱：尚未設定";
+      }
+    }
+
+    updateNicknameLabel();
+
+    if (!nickname) {
+      nicknameModal.style.display = "flex";
+    } else {
+      nicknameModal.style.display = "none";
+    }
+
+    saveNicknameBtn.addEventListener("click", () => {
+      const value = nicknameInput.value.trim();
+      if (!value) {
+        alert("請先輸入一個暱稱喔！");
+        return;
+      }
+      nickname = value;
+      localStorage.setItem("owlsense_nickname", nickname);
+      updateNicknameLabel();
+      nicknameModal.style.display = "none";
+    });
 
     function addMessage(text, sender) {
       const row = document.createElement("div");
@@ -418,7 +535,7 @@
 
       const meta = document.createElement("div");
       meta.className = "bubble-meta";
-      meta.textContent = sender === "user" ? "你" : "歐斯";
+      meta.textContent = sender === "user" ? (nickname || "你") : "歐斯";
 
       wrapper.appendChild(bubble);
       wrapper.appendChild(meta);
@@ -431,6 +548,13 @@
       const text = userInput.value.trim();
       if (!text) return;
 
+      // 若還沒設定暱稱，就請學生先處理暱稱
+      if (!nickname || nickname.trim() === "") {
+        alert("先幫自己取一個暱稱，歐斯才知道怎麼稱呼你喔！");
+        nicknameModal.style.display = "flex";
+        return;
+      }
+
       addMessage(text, "user");
       userInput.value = "";
       userInput.focus();
@@ -442,7 +566,11 @@
         const resp = await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text }),
+          body: JSON.stringify({
+            message: text,
+            anon_id: anonId,
+            nickname: nickname
+          }),
         });
 
         const data = await resp.json();
@@ -462,6 +590,14 @@
         e.preventDefault();
         sendMessage();
       }
+    });
+
+    // 右側標籤點一下快速輸入
+    document.querySelectorAll(".tag").forEach(tag => {
+      tag.addEventListener("click", () => {
+        userInput.value = tag.textContent.trim();
+        userInput.focus();
+      });
     });
   </script>
 </body>
