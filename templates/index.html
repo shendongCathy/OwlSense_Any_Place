@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>OwlSense 歐斯情緒陪伴機器人</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      /* 想改成偏藍就把 primary/secondary 改成藍色系即可 */
+      --color-bg-gradient-start: #e5ddff;
+      --color-bg-gradient-end: #d0ecff;
+      --color-primary: #6c5ce7;   /* 療癒紫 */
+      --color-secondary: #4ea8de; /* 柔和藍 */
+      --color-card-bg: #ffffff;
+      --color-user-bubble: #dfe7fd;
+      --color-bot-bubble: #f1f3f5;
+      --color-text: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans TC",
+        "Segoe UI", sans-serif;
+      color: var(--color-text);
+      background: linear-gradient(
+        145deg,
+        var(--color-bg-gradient-start),
+        var(--color-bg-gradient-end)
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app-wrapper {
+      width: 100%;
+      max-width: 960px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .app-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--color-card-bg);
+      border-radius: 24px;
+      box-shadow: 0 18px 45px rgba(50, 50, 93, 0.15);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .owl-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--color-primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(108, 92, 231, 0.08);
+      color: var(--color-primary);
+      border: 1px solid rgba(108, 92, 231, 0.35);
+    }
+
+    .subtitle {
+      font-size: 0.86rem;
+      color: #5c5c7a;
+    }
+
+    .safety-note {
+      font-size: 0.78rem;
+      color: #6c757d;
+      border-radius: 12px;
+      background: #f8f9fa;
+      padding: 8px 10px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+    }
+
+    .safety-note-icon {
+      font-size: 1rem;
+      margin-top: 1px;
+    }
+
+    .chat-box {
+      flex: 1;
+      border-radius: 18px;
+      background: #f7f7fb;
+      padding: 10px 10px 12px;
+      overflow-y: auto;
+      max-height: 520px;
+    }
+
+    .message-row {
+      margin: 6px 0;
+      display: flex;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.bot {
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 8px 11px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      position: relative;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .bubble.user-bubble {
+      background: var(--color-user-bubble);
+      border-bottom-right-radius: 2px;
+    }
+
+    .bubble.bot-bubble {
+      background: var(--color-bot-bubble);
+      border-bottom-left-radius: 2px;
+    }
+
+    .bubble-meta {
+      font-size: 0.7rem;
+      color: #868e96;
+      margin-top: 2px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: flex-end;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 56px;
+      max-height: 120px;
+      border-radius: 16px;
+      border: 1px solid #ced4da;
+      padding: 10px 36px 10px 12px;
+      font-size: 0.95rem;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.15);
+    }
+
+    .input-placeholder-tag {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      font-size: 0.7rem;
+      color: #adb5bd;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.35);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(108, 92, 231, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 15px rgba(108, 92, 231, 0.25);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .right-panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(108, 92, 231, 0.08);
+      color: #5f3dc4;
+      border: 1px solid rgba(108, 92, 231, 0.18);
+    }
+
+    .tip-card {
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      color: #555;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .tip-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.86rem;
+      color: #495057;
+    }
+
+    .tip-list {
+      padding-left: 18px;
+      margin: 4px 0 0;
+    }
+
+    .tip-list li {
+      margin: 2px 0;
+    }
+
+    .footer-note {
+      font-size: 0.75rem;
+      color: #868e96;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- 左：聊天主區 -->
+    <div class="card">
+      <div class="header">
+        <div class="owl-logo">🦉</div>
+        <div class="header-text">
+          <div class="title">
+            OwlSense 歐斯
+            <span class="badge">校園情緒陪伴機器人</span>
+          </div>
+          <div class="subtitle">
+            想說什麼都可以，讓歐斯陪你一起整理心情。慢慢來就好，不用一次說完。
+          </div>
+        </div>
+      </div>
+
+      <div class="safety-note">
+        <div class="safety-note-icon">🫶</div>
+        <div>
+          歐斯只是一個陪你聊聊天、幫你整理心情的機器人，不能代替老師或醫生。
+          如果有很嚴重的不舒服、想傷害自己或被別人傷害，一定要立刻跟信任的大人說，
+          例如導師、輔導老師或家人。
+        </div>
+      </div>
+
+      <div id="chat-box" class="chat-box">
+        <!-- 初始問候 -->
+        <div class="message-row bot">
+          <div>
+            <div class="bubble bot-bubble">
+              嗨，我是 🦉 歐斯。<br>
+              很高興你來到這裡。<br><br>
+              如果你心裡有一點悶、很生氣、覺得被誤會，或者只是想找人聊聊，
+              都可以跟我說。我會慢慢聽，不會罵你。<br><br>
+              你可以先從一句最想說的話開始，例如：<br>
+              「今天在學校發生一件事…」或「我現在覺得有點難過」。
+            </div>
+            <div class="bubble-meta">歐斯</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea id="user-input" placeholder="想跟歐斯說點什麼呢？"></textarea>
+          <div class="input-placeholder-tag">按 Enter 送出，Shift+Enter 換行</div>
+        </div>
+        <button id="send-btn">
+          傳給歐斯
+        </button>
+      </div>
+    </div>
+
+    <!-- 右：小提醒 & 使用說明 -->
+    <div class="card">
+      <div class="right-panel-title">如何跟 🦉 歐斯聊聊？</div>
+      <div class="tag-list">
+        <div class="tag">我今天心情怪怪的</div>
+        <div class="tag">我跟同學吵架了</div>
+        <div class="tag">覺得很累、不想上學</div>
+        <div class="tag">覺得自己很沒用</div>
+      </div>
+
+      <div class="tip-card">
+        <h3>可以跟歐斯說些什麼？</h3>
+        <ul class="tip-list">
+          <li>今天發生什麼事，讓你印象很深？</li>
+          <li>心裡最重的那個感覺是什麼？（生氣、難過、害怕…）</li>
+          <li>有沒有一件事情，讓你覺得特別委屈？</li>
+        </ul>
+      </div>
+
+      <div class="tip-card">
+        <h3>如果心情很不好怎麼辦？</h3>
+        <ul class="tip-list">
+          <li>先深呼吸幾次，讓自己慢一點。</li>
+          <li>把感受打出來，慢慢說給歐斯聽。</li>
+          <li>之後試著找一位你信任的大人聊聊。</li>
+        </ul>
+      </div>
+
+      <div class="tip-card">
+        <h3>安全提醒</h3>
+        <p style="margin: 4px 0;">
+          如果你有想傷害自己、想消失、或被別人傷害的念頭，
+          歐斯會請你一定要立刻找老師或家人幫忙。
+          因為真正在你身邊的大人，才能真正保護你。
+        </p>
+      </div>
+
+      <div class="footer-note">
+        本服務僅供校園情緒支持使用，無醫療或專業心理治療功能。<br>
+        如遇緊急或危險情況，請立即尋求真人協助。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function addMessage(text, sender) {
+      const row = document.createElement("div");
+      row.className = "message-row " + (sender === "user" ? "user" : "bot");
+
+      const wrapper = document.createElement("div");
+      const bubble = document.createElement("div");
+      bubble.className =
+        "bubble " + (sender === "user" ? "user-bubble" : "bot-bubble");
+      bubble.textContent = text;
+
+      const meta = document.createElement("div");
+      meta.className = "bubble-meta";
+      meta.textContent = sender === "user" ? "你" : "歐斯";
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+      row.appendChild(wrapper);
+      chatBox.appendChild(row);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      userInput.value = "";
+      userInput.focus();
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = "歐斯思考中…";
+
+      try {
+        const resp = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+
+        const data = await resp.json();
+        addMessage(data.reply || "歐斯這次好像沒有聽清楚，可以再說一次嗎？", "bot");
+      } catch (err) {
+        addMessage("連線好像出了一點問題，可以稍後再試一次。", "bot");
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "傳給歐斯";
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
