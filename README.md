@@ -40,3 +40,7 @@ It is meant to be a *supportive first step* for emotional expression.
 git clone https://github.com/shendongCathy/OwlSense_Any_Place.git
 cd OwlSense_Any_Place
 pip install -r requirements.txt
+
+export GEMINI_API_KEY="YOUR_API_KEY"
+python app.py
+
