@@ -73,13 +73,15 @@
       width: 52px;
       height: 52px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff, var(--color-primary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
+      overflow: hidden;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
       flex-shrink: 0;
+    }
+
+    .owl-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .header-text {
@@ -362,7 +364,7 @@
     <!-- 左：聊天主區 -->
     <div class="card">
       <div class="header">
-        <div class="owl-logo">🦉</div>
+        <div class="owl-logo"><img src="/static/OwlSense.png" alt="OwlSense Logo"></div>
         <div class="header-text">
           <div class="title">
             OwlSense 歐斯
