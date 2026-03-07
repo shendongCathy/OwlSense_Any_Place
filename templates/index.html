@@ -371,7 +371,7 @@
             <span class="badge">校園情緒陪伴機器人</span>
           </div>
           <div class="subtitle">
-            想說什麼都可以，讓歐斯陪你一起整理心情。慢慢來就好，不用一次說完。
+            想說什麼都可以，讓歐斯陪你一起整理心情。
           </div>
         </div>
       </div>
@@ -395,8 +395,8 @@
         <div class="message-row bot">
           <div>
             <div class="bubble bot-bubble">
-              嗨，我是 🦉 歐斯。<br>
-              在開始之前，我想先問問你：我可以怎麼稱呼你呢？<br><br>
+              嗨，我是歐斯，你也可以叫我OS。<br>
+              我想先問問你：我可以怎麼稱呼你呢？<br><br>
               你可以幫自己取一個暱稱，例如「小樹」、「星星」或任何你喜歡的名字。<br>
               之後我就會用這個暱稱跟你說話。
             </div>
@@ -407,7 +407,7 @@
 
       <div class="input-area">
         <div class="input-wrapper">
-          <textarea id="user-input" placeholder="先幫自己取個暱稱，然後再跟歐斯說說今天發生了什麼事吧。"></textarea>
+          <textarea id="user-input" placeholder="幫自己取個暱稱，然後再跟歐斯說說今天怎麼啦。"></textarea>
           <div class="input-placeholder-tag">按 Enter 送出，Shift+Enter 換行</div>
         </div>
         <button id="send-btn">
@@ -420,17 +420,17 @@
     <div class="card">
       <div class="right-panel-title">如何跟 🦉 歐斯聊聊？</div>
       <div class="tag-list">
-        <div class="tag">我今天心情怪怪的</div>
-        <div class="tag">我跟同學吵架了</div>
-        <div class="tag">覺得很累、不想上學</div>
-        <div class="tag">覺得自己很沒用</div>
+        <div class="tag">今天心情不好，因為...</div>
+        <div class="tag">我跟同學吵架了，因為...</div>
+        <div class="tag">覺得很累、不想上學，因為...</div>
+        <div class="tag">被大人罵</div>
       </div>
 
       <div class="tip-card">
         <h3>可以跟歐斯說些什麼？</h3>
         <ul class="tip-list">
           <li>今天發生什麼事，讓你印象很深？</li>
-          <li>心裡最重的那個感覺是什麼？（生氣、難過、害怕…）</li>
+          <li>覺得不舒服的感覺是什麼?（生氣、難過、害怕…）</li>
           <li>有沒有一件事情，讓你覺得特別委屈？</li>
         </ul>
       </div>
@@ -438,9 +438,9 @@
       <div class="tip-card">
         <h3>如果心情很不好怎麼辦？</h3>
         <ul class="tip-list">
-          <li>先深呼吸幾次，讓自己慢一點。</li>
-          <li>把感受打出來，慢慢說給歐斯聽。</li>
-          <li>之後試著找一位你信任的大人聊聊。</li>
+          <li>先深呼吸幾次。</li>
+          <li>說給歐斯聽。</li>
+          <li>找一位你信任的朋友聊聊。</li>
         </ul>
       </div>
 
@@ -552,7 +552,7 @@
 
       // 若還沒設定暱稱，就請學生先處理暱稱
       if (!nickname || nickname.trim() === "") {
-        alert("先幫自己取一個暱稱，歐斯才知道怎麼稱呼你喔！");
+        alert("");
         nicknameModal.style.display = "flex";
         return;
       }
